@@ -1,0 +1,20 @@
+[package]
+name = "rocket-htmx-todo"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rocket = { version = "0.5.0-rc.1", features = ["uuid"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dependencies.rocket_dyn_templates]
+version = "0.1.0-rc.1"
+features = ["tera"]
+
+[dependencies.rocket_sync_db_pools]
+version = "0.1.0-rc.1"
+default-features = false
+features = ["diesel_postgres_pool"]
