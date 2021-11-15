@@ -1,0 +1,14 @@
+<li {% if todo.completed %}class="completed"{% endif %} id="item-{{todo.id}}">
+  <div class="view">
+    <form action="/todos/{{todo.id}}/toggle" method="POST" id="toggle-{{todo.id}}" hx-target="#item-{{todo.id}}" hx-swap="outerhtml">
+    </form>
+    <input class="toggle" type="checkbox" {%if todo.completed %}checked{% endif %} onclick="document.getElementById('toggle-{{todo.id}}').requestSubmit()">
+    <label>{{todo.title}}</label>
+    <form action="/todos/{{todo.id}}/delete" method="POST">
+      <button type="submit" class="destroy"></button>
+    </form>
+  </div>
+  <form action="/todos/{{todo.id}}" method="POST">
+    <input class="edit" name="title" value="{{todo.title}}">
+  </form>
+</li>
