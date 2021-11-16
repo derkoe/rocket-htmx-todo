@@ -26,18 +26,18 @@ impl<'r> FromRequest<'r> for HxRequest {
     }
 }
 
+#[derive(Debug, Responder)]
+pub enum TemplateOrRedirect {
+    Template(Template),
+    Redirect(Redirect),
+}
+
 #[get("/")]
 async fn index(conn: Conn) -> Template {
     let todos = Todo::all(&conn).await.unwrap_or_default();
     let mut context = HashMap::new();
     context.insert("todos", todos);
     Template::render("index", context)
-}
-
-#[derive(Debug, Responder)]
-pub enum TemplateOrRedirect {
-    Template(Template),
-    Redirect(Redirect),
 }
 
 #[post("/", data = "<todo>")]
@@ -63,15 +63,22 @@ async fn add(
     }
 }
 
+#[post("/<id>", data = "<todo>")]
+async fn edit(id: Uuid, todo: Form<NewTodo>, conn: Conn) -> Result<Redirect, Status> {
+    match Todo::edit(id, todo.into_inner().title, &conn).await {
+        Ok(_) => Result::Ok(Redirect::to(uri!("/todos"))),
+        Err(e) => Result::Err(Status::default()),
+    }
+}
+
 #[post("/<id>/delete")]
-async fn delete(id: &str, conn: Conn) -> Result<Redirect, Status> {
-    let uid = Uuid::parse_str(id).unwrap();
-    match Todo::delete(uid, &conn).await {
+async fn delete(id: Uuid, conn: Conn) -> Result<Redirect, Status> {
+    match Todo::delete(id, &conn).await {
         Ok(_) => Result::Ok(Redirect::to(uri!("/todos"))),
         Err(e) => Result::Err(Status::default()),
     }
 }
 
 pub fn routes() -> std::vec::Vec<rocket::Route> {
-    routes![index, add, delete]
+    routes![index, add, edit, delete]
 }

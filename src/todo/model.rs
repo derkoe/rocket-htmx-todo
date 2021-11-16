@@ -48,9 +48,23 @@ impl Todo {
         .await
     }
 
+    pub async fn edit(id: Uuid, title: String, conn: &Conn) -> Result<(), Error> {
+        
+        conn.run(move |c| {
+            match diesel::update(all_todos.filter(todos::id.eq(id)))
+                .set(todos::title.eq(title))
+                .execute(c)
+            {
+                Ok(_) => Result::Ok(()),
+                Err(e) => Result::Err(e),
+            }
+        })
+        .await
+    }
+
     pub async fn delete(id: Uuid, conn: &Conn) -> Result<(), Error> {
         conn.run(
-            move |c| match diesel::delete(todos::table.find(id)).execute(c) {
+            move |c| match diesel::delete(all_todos.filter(todos::id.eq(id))).execute(c) {
                 Ok(_) => Result::Ok(()),
                 Err(e) => Result::Err(e),
             },
