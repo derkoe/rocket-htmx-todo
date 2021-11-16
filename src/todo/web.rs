@@ -2,7 +2,6 @@ use crate::db::Conn;
 use crate::todo::model::*;
 use rocket::form::Form;
 use rocket::http::Status;
-use rocket::request::FromParam;
 use rocket::request::FromRequest;
 use rocket::request::Outcome;
 use rocket::request::Request;
@@ -65,13 +64,14 @@ async fn add(
 }
 
 #[post("/<id>/delete")]
-async fn delete(id: Uuid, conn: Conn) -> Result<Redirect, Status> {
-    match Todo::delete(id, &conn).await {
+async fn delete(id: &str, conn: Conn) -> Result<Redirect, Status> {
+    let uid = Uuid::parse_str(id).unwrap();
+    match Todo::delete(uid, &conn).await {
         Ok(_) => Result::Ok(Redirect::to(uri!("/todos"))),
         Err(e) => Result::Err(Status::default()),
     }
 }
 
 pub fn routes() -> std::vec::Vec<rocket::Route> {
-    routes![index, add]
+    routes![index, add, delete]
 }

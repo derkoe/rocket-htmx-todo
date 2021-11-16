@@ -49,12 +49,12 @@ impl Todo {
     }
 
     pub async fn delete(id: Uuid, conn: &Conn) -> Result<(), Error> {
-        Result::Ok(())
-        // conn.run(|c| {
-        // match diesel::delete(todos.filter(id.eq(id))).execute(&conn) {
-        //     Ok() => Result::Ok(),
-        //     Err(e) => Result::Err(e),
-        // }
-        // })
+        conn.run(
+            move |c| match diesel::delete(todos::table.find(id)).execute(c) {
+                Ok(_) => Result::Ok(()),
+                Err(e) => Result::Err(e),
+            },
+        )
+        .await
     }
 }
