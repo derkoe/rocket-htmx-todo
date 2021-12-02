@@ -59,7 +59,7 @@ async fn add(
                 Result::Ok(TemplateOrRedirect::Redirect(Redirect::found("/todos")))
             }
         }
-        Err(e) => Result::Err(Status::default()),
+        Err(_) => Result::Err(Status::default()),
     }
 }
 
@@ -67,7 +67,7 @@ async fn add(
 async fn edit(id: Uuid, todo: Form<NewTodo>, conn: Conn) -> Result<Redirect, Status> {
     match Todo::edit(id, todo.into_inner().title, &conn).await {
         Ok(_) => Result::Ok(Redirect::to(uri!("/todos"))),
-        Err(e) => Result::Err(Status::default()),
+        Err(_) => Result::Err(Status::default()),
     }
 }
 
@@ -75,10 +75,23 @@ async fn edit(id: Uuid, todo: Form<NewTodo>, conn: Conn) -> Result<Redirect, Sta
 async fn delete(id: Uuid, conn: Conn) -> Result<Redirect, Status> {
     match Todo::delete(id, &conn).await {
         Ok(_) => Result::Ok(Redirect::to(uri!("/todos"))),
-        Err(e) => Result::Err(Status::default()),
+        Err(_) => Result::Err(Status::default()),
     }
 }
 
+#[post("/<id>/toggle")]
+async fn toggle(id: Uuid, conn: Conn) -> Result<Redirect, Status> {
+    match Todo::toggle(id, &conn).await {
+        Ok(_) => Result::Ok(Redirect::to(uri!("/todos"))),
+        Err(_) => Result::Err(Status::default()),
+    }
+}
+
+#[post("/toggle-all")]
+fn toggle_all() -> Result<Redirect, Status> {
+    Ok(Redirect::to(uri!("/todos")))
+}
+
 pub fn routes() -> std::vec::Vec<rocket::Route> {
-    routes![index, add, edit, delete]
+    routes![index, add, edit, delete, toggle, toggle_all]
 }
