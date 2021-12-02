@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: .
+    environment:
+      DATABASE_URL: "postgres://todos:password@database:5432/todos"
+    ports:
+      - "8000:8000"
+    links:
+      - database
+  database:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: "todos"
+      POSTGRES_PASSWORD: "password"
+    ports:
+      - "5432:5432"
