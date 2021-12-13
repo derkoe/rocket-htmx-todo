@@ -3,8 +3,8 @@ use crate::schema::todos;
 use crate::schema::todos::dsl::todos as all_todos;
 use chrono::{NaiveDateTime, Utc};
 use diesel::result::Error;
-use diesel::{self, prelude::*, result::QueryResult};
-use diesel::{Insertable, Queryable, AsChangeset};
+use diesel::{self, prelude::*, result::QueryResult, sql_query};
+use diesel::{AsChangeset, Insertable, Queryable};
 use rocket::serde::Serialize;
 use uuid::Uuid;
 
@@ -72,15 +72,27 @@ impl Todo {
     }
 
     pub async fn toggle(id: Uuid, conn: &Conn) -> Result<(), Error> {
-        conn.run(
-            move |c| match diesel::update(all_todos.filter(todos::id.eq(id)))
-                .set(todos::completed.neq(todos::completed))
+        conn.run(move |c| {
+            match sql_query("UPDATE todos SET completed = NOT completed WHERE id = $1")
+                .bind::<diesel::sql_types::Uuid, _>(id)
                 .execute(c)
             {
                 Ok(_) => Result::Ok(()),
                 Err(e) => Result::Err(e),
-            },
-        )
+            }
+        })
         .await
+
+        // TODO this does not work:
+        // conn.run(
+        //     move |c| match diesel::update(all_todos.filter(todos::id.eq(id)))
+        //         .set(todos::completed.neq(todos::completed))
+        //         .execute(c)
+        //     {
+        //         Ok(_) => Result::Ok(()),
+        //         Err(e) => Result::Err(e),
+        //     },
+        // )
+        // .await
     }
 }
