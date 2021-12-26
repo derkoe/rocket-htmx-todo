@@ -37,6 +37,7 @@ async fn index(conn: Conn) -> Template {
     let todos = Todo::all(&conn).await.unwrap_or_default();
     let mut context = HashMap::new();
     context.insert("todos", todos);
+    // TODO howto add different items? context.insert("items_left", todos.len());
     Template::render("index", context)
 }
 

@@ -16,5 +16,23 @@
     {% endfor %}
   </ul>
 </section>
-
+<footer class="footer">
+  <span class="todo-count">
+    <strong>{{ items_left }}</strong> {% if items_left == 1 %}item{% else %} items {% endif %} left
+  </span>
+  <ul class="filters">
+    <li>
+      <a class="{all ? 'selected' : ''}" href="/todos">All</a>
+    </li>
+    <li>
+      <a class="{active ? 'selected' : ''}" href="/todos/active">Active</a>
+    </li>
+    <li>
+      <a class="{completed ? 'selected' : ''}" href="/todos/completed">Completed</a>
+    </li>
+  </ul>
+  <form action="/todos/clear-completed" method="POST">
+    <button class="clear-completed">Clear completed</button>
+  </form>
+</footer>
 {% endblock content %}
